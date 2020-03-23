@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>提交评论页面</title>
+</head>
+<body>
+    <a href="/login">请登录</a>
+    <h1>请提交评论</h1>
+    <form action="/message" method="post">
+        <textarea name="message"></textarea>
+        <textarea name="author"></textarea>
+        <button type="submit">post提交</button>
+    </form>
+    <h3>{{message}}</h3>
+</body>
+</html>
+
