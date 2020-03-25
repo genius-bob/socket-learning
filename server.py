@@ -14,6 +14,7 @@ import socket
 import urllib.parse
 from log import log
 from routes import route_static, route_dict
+from routes_todo import todo_dict
 
 
 class Request(object):
@@ -83,6 +84,7 @@ def response_for_path(path):
         '/static': route_static,
     }
     r.update(route_dict)
+    r.update(todo_dict)
     response = r.get(path, error)
     return response(request)
 
@@ -111,10 +113,11 @@ def run(host='', port=3000):
                 continue
             path = r.split()[1]
             request.method = r.split()[0]
+            log("请求的method：\n", request.method)
             request.body = r.split('\r\n\r\n', 1)[1]
             request.add_headers(r.split('\r\n\r\n')[0].split('\r\n')[1:])
             response = response_for_path(path)
-            log('raw response:', response)
+            log('原始响应response:\n', response)
             connection.sendall(response)
             connection.close()
 

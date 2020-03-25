@@ -16,7 +16,7 @@ def route_register(request):
         form = request.form()
         u = User(form)
         if u.register_validate():
-            u.save()
+            u.save(rewrite=True, judge_num=1, rewrite_num=2)
             result = '注册成功<br><pre>{}</pre>'.format(User.all())
         else:
             result = '用户名或密码必须大于两位'
@@ -87,28 +87,33 @@ def route_index(request):
     return r.encode('utf-8')
 
 
+# 跳转到其他网页,301为永久的重定向，302为暂时的重定向
+def redirect(url):
+    header = {
+        'Location': url,
+    }
+    r = response_with_header(header, 302) + '\r\n'
+    return r.encode('utf-8')
+
+
 def route_msg(request):
     if current_user(request) == '【游客】':
-        header = 'HTTP/1.1 200 OK\r\nContent-Type= text/html\r\n'
-        body = template('/login.html')
-        r = header + '\r\n' + body
-        return r.encode('utf-8')
-    else:
-        if request.method == 'POST':
-            form = request.form()
-            message = Messages(form)
-            message.save()
-        messages = '<br>'.join([str(m) for m in Messages.all()])
-        body = template('/index_basic.html')
-        body = body.replace('{{message}}', messages)
-        header = 'HTTP/1.1 200 OK\r\nContent-Type= text/html\r\n'
-        r = header + '\r\n' + body
-        return r.encode('utf-8')
+        return redirect('/login')
+    if request.method == 'POST':
+        form = request.form()
+        message = Messages(form)
+        message.save()
+    messages = '<br>'.join([str(m) for m in Messages.all()])
+    body = template('/index_basic.html')
+    body = body.replace('{{message}}', messages)
+    header = 'HTTP/1.1 200 OK\r\nContent-Type= text/html\r\n'
+    r = header + '\r\n' + body
+    return r.encode('utf-8')
 
 
 # 组合http请求的第一行和传入的headers(dict)项
-def response_with_header(headers):
-    header = 'HTTP/1.1 200 OK\r\n'
+def response_with_header(headers, status_code=200):
+    header = 'HTTP/1.1 {} OK\r\n'.format(status_code)
     header += ''.join(['{}: {}\r\n'.format(k, v) for k, v in headers.items()])
     return header
 

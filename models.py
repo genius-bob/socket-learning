@@ -42,22 +42,43 @@ class Model(object):
         ms = [cls(m) for m in models]
         return ms
 
-    def save(self):
+    # rewrite参数为True时，例如username和id这类型的属性，如果出现重复，修改password和title的属性，而不是出现重复
+    # rewrite_num为要覆盖的属性处于self类的第几个位置，如password处于User类的第二个属性，给与默认值1
+    # judge_num为判断重复的属性的位置
+    def save(self, rewrite=False, judge_num=0, rewrite_num=1):
         path = self.db_path()
-        models = self.models_username_handle(self.all())
+        models = self.models_dict_handle(self.all(), rewrite, judge_num, rewrite_num)
         ss = [m.__dict__ for m in models]
         return save(ss, path)
 
 # 给Model类save方法创造密码和用户的方法，如果用户名username重复，替换该用户的密码，id不变
-    def models_username_handle(self, models):
-        if hasattr(self, 'username') and len(models) and hasattr(self, 'password')> 0:
+    def models_dict_handle(self, models, rewrite, judge_num, rewrite_num):
+        # if (hasattr(self, 'username') and hasattr(self, 'password')) or \
+        #         (hasattr(self, 'id') and hasattr(self, 'title')) and len(models):
+        #     index = -1
+        #     for i, model in enumerate(models):
+        #         if hasattr(model, 'username') and getattr(model, 'username') == getattr(self, 'username'):
+        #             index = i
+        #             break
+        #         elif hasattr(model, 'id') and getattr(model, 'id') == getattr(self, 'id'):
+        #             index = i
+        #             break
+        #     if index > -1 and hasattr(self, 'username') and hasattr(self, 'password'):
+        #         models[index].__dict__['password'] = getattr(self, 'password')
+        #     elif index > -1 and hasattr(self, 'id') and hasattr(self, 'title'):
+        #         models[index].__dict__['title'] = getattr(self, 'title')
+        #     else:
+        #         models.append(self)
+        if rewrite and len(models):
             index = -1
+            first_dict = list(models[0].__dict__.keys())[judge_num]
+            rewrite_dict = list(models[0].__dict__.keys())[rewrite_num]
             for i, model in enumerate(models):
-                if getattr(model, 'username') == getattr(self, 'username'):
+                if hasattr(model, first_dict) and getattr(model, first_dict) == getattr(self, first_dict):
                     index = i
                     break
-            if index > -1:
-                models[index].__dict__['password'] = getattr(self, 'password')
+            if index > -1 and hasattr(self, rewrite_dict):
+                models[index].__dict__[rewrite_dict] = getattr(self, rewrite_dict)
             else:
                 models.append(self)
         else:
@@ -152,6 +173,12 @@ class Cookie(Model):
             if getattr(m, 'name') == self.name:
                 return getattr(m, 'cookie')
         return None
+
+
+class Todo(Model):
+    def __init__(self, form):
+        self.id = self.create_id(form)
+        self.title = form.get('title', '')
 
 
 
