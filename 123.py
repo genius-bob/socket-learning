@@ -1,3 +1,4 @@
-from models import Todo
-k = list(Todo.all()[0].__dict__.keys())[0]
-print(k)
+for i in range(10):
+    # if True:
+    #     continue
+    print(i)

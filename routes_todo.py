@@ -8,8 +8,13 @@ def index(request):
         'Content-Type': 'text/html',
     }
     models = Todo.all()
-    todo_html = ''.join(
-        ['<h3>{}: {}</h3> <a href="/todo/edit?todo_id={}">编辑</a>\r\n'.format(m.id, m.title, m.id) for m in models])
+    # todo_html = ''.join(
+    #     ['<h3>{}: {}</h3> <a href="/todo/edit?todo_id={}">编辑</a>\r\n'.format(m.id, m.title, m.id) for m in models])
+    todo_html = ''
+    for m in models:
+        edit_html = '<a href="/todo/edit?todo_id={}">编辑</a>'.format(m.id)
+        delete_html = '<a href="/todo/delete?todo_id={}">删除</a>'.format(m.id)
+        todo_html += '<h3>{}: {}</h3>'.format(m.id, m.title) + edit_html + delete_html
     header = response_with_header(headers)
     body = template('/Todo.html')
     body = body.replace('{{ title }}', todo_html)
@@ -59,6 +64,12 @@ def add(request):
     return redirect('/todo')
 
 
+def todo_delete(request):
+    todo_id = request.query.get('todo_id', '')
+    Todo.delete(id=int(todo_id))
+    return redirect('/todo')
+
+
 todo_dict = {
     # 显示函数
     '/todo': index,
@@ -66,4 +77,5 @@ todo_dict = {
     # 数据处理路由
     '/todo/update': update,
     '/todo/add': add,
+    '/todo/delete': todo_delete,
 }

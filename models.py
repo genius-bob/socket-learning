@@ -51,7 +51,7 @@ class Model(object):
         ss = [m.__dict__ for m in models]
         return save(ss, path)
 
-# 给Model类save方法创造密码和用户的方法，如果用户名username重复，替换该用户的密码，id不变
+    # 给Model类save方法创造密码和用户的方法，如果用户名username重复，替换该用户的密码，id不变
     def models_dict_handle(self, models, rewrite, judge_num, rewrite_num):
         # if (hasattr(self, 'username') and hasattr(self, 'password')) or \
         #         (hasattr(self, 'id') and hasattr(self, 'title')) and len(models):
@@ -85,7 +85,7 @@ class Model(object):
             models.append(self)
         return models
 
-# i.__dict__[k] 等价于 getattr(i, k)   i.__dict__.keys()等价于hasattr(i, k)
+    # i.__dict__[k] 等价于 getattr(i, k)   i.__dict__.keys()等价于hasattr(i, k)
     @classmethod
     def find_by(cls, **kwargs):
         for i in cls.all():
@@ -101,7 +101,7 @@ class Model(object):
         for i in cls.all():
             for k, v in kwargs.items():
                 if hasattr(i, k) and getattr(i, k) == v:
-                # if k in i.__dict__.keys() and i.__dict__[k] == v:
+                    # if k in i.__dict__.keys() and i.__dict__[k] == v:
                     result.append(i)
         return result
 
@@ -119,9 +119,27 @@ class Model(object):
 
     def __repr__(self):
         classname = self.__class__.__name__
-        properties = ['{}:({})'.format(k,v) for k,v in self.__dict__.items()]
+        properties = ['{}:({})'.format(k, v) for k, v in self.__dict__.items()]
         s = '\n'.join(properties)
         return '< {}\n{}\n >\n'.format(classname, s)
+
+    @classmethod
+    def delete(cls, **kwargs):
+        path = cls.db_path()
+        models = cls.all()
+        for k, v in kwargs.items():
+            log('========================k v', k, v, type(k), type(v))
+            for i, m in enumerate(models):
+                if not hasattr(m, k):
+                    log('========================continue执行了')
+                    continue
+                log('========================比较', str(getattr(m, k)), str(v))
+                if str(getattr(m, k)) == str(v):
+                    del models[i]
+                    break
+        ll = [m.__dict__ for m in models]
+        log('========================ll', ll)
+        save(ll, path)
 
 
 class Messages(Model):
@@ -166,7 +184,7 @@ class Cookie(Model):
             s += seed[random_index]
         return s
 
-# 判断已存在的user，不重新给与cookie，重复用户，返回cookie值，不重复返回None
+    # 判断已存在的user，不重新给与cookie，重复用户，返回cookie值，不重复返回None
     def the_same_user(self):
         models = self.all()
         for m in models:
@@ -179,8 +197,3 @@ class Todo(Model):
     def __init__(self, form):
         self.id = self.create_id(form)
         self.title = form.get('title', '')
-
-
-
-
-
