@@ -1,15 +1,3 @@
-"""
-课 3 预习
-2017/02/19
-
-
-static 目录中存储了图片
-templates 目录中存储了 html 文件
-utils.py 包含了 log 函数
-server.py 是扩展的服务器代码, 详细流程功能说明请看后文
-routes.py 是服务器能处理的 path(路由) 和 路由处理函数
-models.py 是数据存储的代码
-"""
 import socket
 import urllib.parse
 from log import log
@@ -36,11 +24,13 @@ class Request(object):
                 self.cookies[k] = v
 
     def add_headers(self, headers):
+        self.headers = {}
         for h in headers:
             k, v = h.split(':', 1)
             self.headers[k] = v
         self.cookies = {}
         self.add_cookies()
+        log('cookie:\n', self.cookies)
 
     def form(self):
         body = self.body
@@ -113,7 +103,6 @@ def run(host='', port=3000):
                 continue
             path = r.split()[1]
             request.method = r.split()[0]
-            log("请求的method：\n", request.method)
             request.body = r.split('\r\n\r\n', 1)[1]
             request.add_headers(r.split('\r\n\r\n')[0].split('\r\n')[1:])
             response = response_for_path(path)
@@ -129,48 +118,3 @@ if __name__ == '__main__':
     )
     run(**config)
 
-"""
-以下是课 3 的 server.py 的整理思路
-server.py
-    建立host和端口
-    监听请求
-    接受请求
-        分解请求信息
-            method
-            path
-            query
-            body
-        保存请求
-            临时保存，用完就丢
-    处理请求
-        获取路由字典
-            path和响应函数的映射字典
-        根据请求的path和字典处理请求并获得返回页面
-            routes
-                主页
-                    返回页面
-                登录
-                    处理post请求
-                        对比post数据和用户数据
-                        返回登录结果
-                    返回页面
-                注册
-                    处理post请求
-                        对比post数据和注册规则
-                        保存合法的注册信息
-                            保存到User.txt
-                        返回注册结果
-                    返回页面
-                留言板
-                    处理post请求
-                        将post的数据加入留言列表
-                    返回页面
-                        包含留言列表
-                静态资源（图片）
-                    根据query的内容返回对应的资源
-        返回响应内容
-    发送响应内容
-    关闭请求连接
-
-
-"""

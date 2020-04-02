@@ -1,4 +1,4 @@
-from log import log
+from log import log, f_time
 import json
 import random
 
@@ -19,16 +19,6 @@ def save(data, path):
         f.write(s)
 
 
-# 随机生成cookie字符串，为Cookie类
-def random_str():
-    seed = "as][d][sad;d-a0sid-0aa]s[d;]sa[;asd;["
-    s = ''
-    for i in range(20):
-        random_index = random.randint(0, len(seed) - 1)
-        s += seed[random_index]
-    return s
-
-
 class Model(object):
     @classmethod
     def db_path(cls):
@@ -45,14 +35,14 @@ class Model(object):
     # rewrite参数为True时，例如username和id这类型的属性，如果出现重复，修改password和title的属性，而不是出现重复
     # rewrite_num为要覆盖的属性处于self类的第几个位置，如password处于User类的第二个属性，给与默认值1
     # judge_num为判断重复的属性的位置
-    def save(self, rewrite=False, judge_num=0, rewrite_num=1):
+    def save(self, rewrite=False, judge_num=0, **kwargs):
         path = self.db_path()
-        models = self.models_dict_handle(self.all(), rewrite, judge_num, rewrite_num)
+        models = self.models_dict_handle(self.all(), rewrite, judge_num, **kwargs)
         ss = [m.__dict__ for m in models]
         return save(ss, path)
 
     # 给Model类save方法创造密码和用户的方法，如果用户名username重复，替换该用户的密码，id不变
-    def models_dict_handle(self, models, rewrite, judge_num, rewrite_num):
+    def models_dict_handle(self, models, rewrite, judge_num, **kwargs):
         # if (hasattr(self, 'username') and hasattr(self, 'password')) or \
         #         (hasattr(self, 'id') and hasattr(self, 'title')) and len(models):
         #     index = -1
@@ -72,13 +62,15 @@ class Model(object):
         if rewrite and len(models):
             index = -1
             first_dict = list(models[0].__dict__.keys())[judge_num]
-            rewrite_dict = list(models[0].__dict__.keys())[rewrite_num]
             for i, model in enumerate(models):
                 if hasattr(model, first_dict) and getattr(model, first_dict) == getattr(self, first_dict):
                     index = i
                     break
-            if index > -1 and hasattr(self, rewrite_dict):
-                models[index].__dict__[rewrite_dict] = getattr(self, rewrite_dict)
+            if index > -1:
+                for k, v in kwargs.items():
+                    rewrite_dict = list(models[0].__dict__.keys())[v]
+                    if hasattr(self, rewrite_dict):
+                        models[index].__dict__[rewrite_dict] = getattr(self, rewrite_dict)
             else:
                 models.append(self)
         else:
@@ -106,15 +98,18 @@ class Model(object):
         return result
 
     @classmethod
-    def create_id(cls, form):
-        cls.id = form.get('id', None)
-        if cls.id is not None:
-            cls.id = int(cls.id)
+    def create_id(cls):
+        # cls.id = form.get('id', None)
+        # if cls.id is not None:
+        #     log("=============================cls.all()1", cls.id)
+        #     cls.id = int(cls.id)
+        # else:
+        if not cls.all():
+            log("=============================cls.all()2")
+            cls.id = 1
         else:
-            if len(cls.all()) == 0:
-                cls.id = 1
-            else:
-                cls.id = cls.all()[-1].__dict__['id'] + 1
+            log("=============================cls.all()3")
+            cls.id = cls.all()[-1].__dict__['id'] + 1
         return cls.id
 
     def __repr__(self):
@@ -128,17 +123,13 @@ class Model(object):
         path = cls.db_path()
         models = cls.all()
         for k, v in kwargs.items():
-            log('========================k v', k, v, type(k), type(v))
             for i, m in enumerate(models):
                 if not hasattr(m, k):
-                    log('========================continue执行了')
                     continue
-                log('========================比较', str(getattr(m, k)), str(v))
                 if str(getattr(m, k)) == str(v):
                     del models[i]
                     break
         ll = [m.__dict__ for m in models]
-        log('========================ll', ll)
         save(ll, path)
 
 
@@ -150,7 +141,7 @@ class Messages(Model):
 
 class User(Model):
     def __init__(self, form):
-        self.id = self.create_id(form)
+        self.id = form.get('id', '')
         self.username = form.get('username', '')
         self.password = form.get('password', '')
 
@@ -195,5 +186,9 @@ class Cookie(Model):
 
 class Todo(Model):
     def __init__(self, form):
-        self.id = self.create_id(form)
+        log("=============================form:", form)
+        self.id = form.get('id', '')
         self.title = form.get('title', '')
+        self.username = form.get('username', '')
+        self.created_time = form.get('created_time', '')
+        self.update_time = form.get('update_time', '')

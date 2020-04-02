@@ -9,6 +9,7 @@
 <form action="/todo/add" method="post">
     <input type="text" name="title" placeholder="请输入待办事项">
     <button type="submit">添加</button>
+    <input type="hidden" name="username" value="{{ username }}">
 </form>
 <br>
 <div>{{ title }}</div>

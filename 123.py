@@ -1,4 +1,3 @@
-for i in range(10):
-    # if True:
-    #     continue
-    print(i)
+from log import f_time
+
+print(f_time())

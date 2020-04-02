@@ -15,6 +15,7 @@ def route_register(request):
     if request.method == 'POST':
         form = request.form()
         u = User(form)
+        u.id = u.create_id()
         if u.register_validate():
             u.save(rewrite=True, judge_num=1, rewrite_num=2)
             result = '注册成功<br><pre>{}</pre>'.format(User.all())
