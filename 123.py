@@ -1,3 +1,6 @@
-from log import f_time
+from models import Todo
 
-print(f_time())
+t = Todo({
+
+})
+print(t.all())

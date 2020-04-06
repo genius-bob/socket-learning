@@ -32,8 +32,9 @@ class Model(object):
         ms = [cls(m) for m in models]
         return ms
 
+
     # rewrite参数为True时，例如username和id这类型的属性，如果出现重复，修改password和title的属性，而不是出现重复
-    # rewrite_num为要覆盖的属性处于self类的第几个位置，如password处于User类的第二个属性，给与默认值1
+    # **kwargs为要覆盖的属性处于self类的第几个位置，可以指定多个，如password处于User类的第二个属性，则"re1=1, rel2=2..."
     # judge_num为判断重复的属性的位置
     def save(self, rewrite=False, judge_num=0, **kwargs):
         path = self.db_path()
@@ -42,6 +43,7 @@ class Model(object):
         return save(ss, path)
 
     # 给Model类save方法创造密码和用户的方法，如果用户名username重复，替换该用户的密码，id不变
+
     def models_dict_handle(self, models, rewrite, judge_num, **kwargs):
         # if (hasattr(self, 'username') and hasattr(self, 'password')) or \
         #         (hasattr(self, 'id') and hasattr(self, 'title')) and len(models):
@@ -192,3 +194,10 @@ class Todo(Model):
         self.username = form.get('username', '')
         self.created_time = form.get('created_time', '')
         self.update_time = form.get('update_time', '')
+
+
+class JJTodo(Model):
+    def __init__(self, form):
+        self.id = form.get('id', '')
+        self.title = form.get('title', '')
+        self.created_time = form.get('created_time', '')

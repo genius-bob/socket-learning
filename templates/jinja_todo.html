@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jinja_todo</title>
+</head>
+<body>
+
+<h1>Jinja_Todo</h1>
+
+<form action="/jj/add" method="post">
+    <input type="text" name="title" placeholder="请输入代办事项">
+    <button type="submit">Add Todo</button>
+</form>
+
+{% for t in todos %}
+    <h3>{{ t.id }}: {{ t.title }} @创建时间{{ t.created_time }}<a href="/jj/edit?id={{ t.id }}">编辑</a> <a href="/jj/delete?id={{ t.id }}">删除</a></h3>
+{% endfor %}
+
+</body>
+</html>

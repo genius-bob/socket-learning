@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>edit_todo</title>
+</head>
+<body>
+
+<h1>Edit_Todo</h1>
+<form action="/jj/update?id={{ todos.id }}" method="post">
+    <input type="text" name="title" value="{{ todos.title }}">
+    <button type="submit">Edit Todo</button>
+</form>
+
+</body>
+</html>

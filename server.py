@@ -3,6 +3,7 @@ import urllib.parse
 from log import log
 from routes import route_static, route_dict
 from routes_todo import todo_dict
+from jinja_todo import jinja_todo_dict
 
 
 class Request(object):
@@ -75,6 +76,7 @@ def response_for_path(path):
     }
     r.update(route_dict)
     r.update(todo_dict)
+    r.update(jinja_todo_dict)
     response = r.get(path, error)
     return response(request)
 
